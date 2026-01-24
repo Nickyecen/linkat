@@ -1,6 +1,7 @@
 #include "link.hpp"
 #include "read_input.hpp"
 #include <cstdlib>
+#include <iostream>
 #include <string>
 
 int main(int argc, char *argv[]) {
@@ -10,10 +11,7 @@ int main(int argc, char *argv[]) {
   bool recursive;
 
   readInput(argc, argv, fileName, header, tail, recursive);
-  link(fileName, header, tail);
+  std::cout << link(fileName, header, tail, recursive);
 
   return 0;
 }
-
-void link(const std::string fileName, const std::string header,
-          const std::string tail);
