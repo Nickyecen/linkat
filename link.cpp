@@ -112,7 +112,6 @@ std::string link(const std::string &fileName, const std::string &header,
 
         // Senao, passa a ler corpo
         afixPtr = 1;
-        out << curChar;
 
         buffer.clear();
         state = READING_BODY;
@@ -149,7 +148,7 @@ std::string link(const std::string &fileName, const std::string &header,
 
         afixPtr = 1;
         buffer.clear();
-        includedFile.clear();
+        includedFile.str("");
 
         // Se o caractere lido for inicio do header, checa se e header
         if (curChar == header[0]) {
