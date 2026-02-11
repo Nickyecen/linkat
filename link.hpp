@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 
 std::string link(const std::string &fileName, const std::string &header,

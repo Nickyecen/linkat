@@ -1,4 +1,5 @@
 #include "link.hpp"
+#include "dependency_graph.hpp"
 #include <cstdlib>
 #include <fstream>
 #include <ios>
@@ -11,6 +12,8 @@
 #define READING_HEADER 1
 #define READING_FILENAME 2
 #define READING_TAIL 3
+
+DependencyGraph dependencyGraph;
 
 std::string readFile(const std::string &fileName);
 
@@ -38,6 +41,8 @@ std::string link(const std::string &fileName, const std::string &header,
   std::vector<char> buffer;
   std::stringstream includedFile;
   std::stringstream out;
+
+  dependencyGraph.addFile(fileName);
 
   int state = READING_BODY;
   int afixPtr = 1;
@@ -137,13 +142,18 @@ std::string link(const std::string &fileName, const std::string &header,
     case READING_TAIL:
       // Se leu tail inteira
       if (afixPtr == tail.length()) {
+        std::string includedFileStr = includedFile.str();
+
+        dependencyGraph.addFile(includedFileStr);
+        dependencyGraph.addDependency(fileName, includedFileStr);
+
         // Se for recursivo
         if (recursive) {
           // Faz link de includes no novo arquivo
-          out << link(includedFile.str(), header, tail, true);
+          out << link(includedFileStr, header, tail, true);
         } else {
           // Senao, apenas imprime o arquivo
-          out << readFile(includedFile.str());
+          out << readFile(includedFileStr);
         }
 
         afixPtr = 1;
@@ -237,6 +247,8 @@ std::string link(const std::string &fileName, const std::string &header,
     // Senao, faltava caracteres no tail
     errorMissingTail(fileName, includedFile.str());
   }
+
+  std::cout << dependencyGraph.toString();
 
   return out.str();
 }
