@@ -11,18 +11,22 @@ const std::string Linker::link(INode *list, const std::string &header,
                                const std::string &tail) {
   std::stringstream result;
 
+  // Itera sobre os INodes
   for (INode *it = list; it != nullptr; it = it->next()) {
     switch (it->type()) {
+    // Blocos de texto são colocados na saída
     case INode::DataType::BLOCK:
       result << it->data();
       break;
 
+    // Links são acessados
     case INode::DataType::LINK: {
       std::fstream linked_file(it->data(), std::ios_base::in);
 
       if (linked_file.fail())
         throw std::invalid_argument("Linked file is invalid.");
 
+      // Checa se é necessário fazer o parsing recursivo e o faz
       if (_flags.recursive()) {
         INode *link_list = _parser.parse(&linked_file, header, tail);
         result << this->link(link_list, header, tail);

@@ -7,9 +7,11 @@
 // Public
 
 void UserInterface::process(const int argc, char *argv[]) {
+  // Realiza leitura de input
   _readInput(argc, argv);
   _linker.setFlags(_flags);
 
+  // Abre arquivo
   _file.open(_fileName, std::ios_base::in);
   std::string file_health = _checkFileHealth(_file);
   if (file_health.length() != 0) {
@@ -17,10 +19,13 @@ void UserInterface::process(const int argc, char *argv[]) {
               << file_health << std::endl;
   }
 
+  // Realiza parsing
   INode *list = _parser.parse(&_file, _header, _tail);
 
+  // Realiza linkagem
   std::string linked_file = _linker.link(list, _header, _tail);
 
+  // Exibe saída
   std::cout << linked_file;
 
   _file.close();
@@ -28,9 +33,10 @@ void UserInterface::process(const int argc, char *argv[]) {
 
 // Private
 
-// Obj.: Reads the input given by the user on the code call and puts it in an
-//       understandable format for parsing.
+// Obj.: Lê input dado pelo usuário na chamada do programa e coloca em formato
+//       compreensível para parsing
 void UserInterface::_readInput(const int argc, char *argv[]) {
+  // Mensagens de Erro
   const std::string EXPECTED_ERR_MSG = ", expected:\n"
                                        "linkat [-r] file.ext header tail";
   const std::string NUM_ARGS_ERR_MSG =
@@ -38,14 +44,17 @@ void UserInterface::_readInput(const int argc, char *argv[]) {
   const std::string ARGS_ERR_MSG = "Invalid arguments" + EXPECTED_ERR_MSG;
   const std::string FLAGS_ERR_MSG = "Invalid flags" + EXPECTED_ERR_MSG;
 
+  // Checa argumentos
   if (argc < MIN_ARGS || argc > MAX_ARGS)
     throw std::invalid_argument(NUM_ARGS_ERR_MSG);
 
+  // Checa se há flags
   if (argc == MIN_ARGS) {
     _fileName = argv[1];
     _header = argv[2];
     _tail = argv[3];
   } else {
+    // Checa flags
     std::string flags = argv[1];
     if (flags[0] != '-')
       throw std::invalid_argument(ARGS_ERR_MSG);
@@ -54,6 +63,7 @@ void UserInterface::_readInput(const int argc, char *argv[]) {
     if (numFlags < NUM_FLAGS)
       throw std::invalid_argument(FLAGS_ERR_MSG);
 
+    // Carrega flags
     for (int i = 1; i < numFlags + 1; i++) {
       switch (flags[i]) {
       case 'r':
@@ -70,9 +80,8 @@ void UserInterface::_readInput(const int argc, char *argv[]) {
   }
 }
 
-// Obj.: Checks the integrity of a given file, returning an empty string if no
-//       problem was found and returning a message stating the problem
-//       otherwise.
+// Obj.: Checa integridade do arquivo passado, devolvendo uma string vazia caso
+//       não seja encontrado erro; uma mensagem de erro caso contrário
 std::string UserInterface::_checkFileHealth(std::fstream &file) {
   std::string msg = "";
 
