@@ -1,17 +1,18 @@
 #include "parser.hpp"
 #include "inode.hpp"
-#include <ios>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
-INode *Parser::parse() {
-  if (!_file)
+INode *Parser::parse(std::fstream *file, const std::string &header,
+                     const std::string &tail) {
+  if (!file)
     throw std::invalid_argument("Parsing without a file");
 
-  if (_header.length() == 0)
+  if (header.length() == 0)
     throw std::invalid_argument("Parsing without a header");
 
-  if (_tail.length() == 0)
+  if (tail.length() == 0)
     throw std::invalid_argument("Parsing without a tail");
 
   INode *init = new INode("", INode::DataType::BLOCK);
@@ -21,12 +22,10 @@ INode *Parser::parse() {
 
   std::stringstream data;
   char symbol;
-  while (!_file->eof()) {
-    symbol = _file->get();
-
+  while (file->get(symbol)) {
     switch (state) {
     case State::READING_BLOCK:
-      if (symbol == _header[0] && _checkHeader()) {
+      if (symbol == header[0] && _checkLimiter(file, header)) {
         current =
             current->append(new INode(data.str(), INode::DataType::BLOCK));
         data.str("");
@@ -36,7 +35,7 @@ INode *Parser::parse() {
       data << symbol;
       break;
     case State::READING_LINK:
-      if (symbol == _tail[0] && _checkTail()) {
+      if (symbol == tail[0] && _checkLimiter(file, tail)) {
         current = current->append(new INode(data.str(), INode::DataType::LINK));
         data.str("");
         state = State::READING_BLOCK;
@@ -49,6 +48,10 @@ INode *Parser::parse() {
 
   switch (state) {
   case State::READING_BLOCK: {
+    std::string data_str = data.str();
+    if (!data_str.empty()) {
+      current->append(new INode(data_str, INode::DataType::BLOCK));
+    }
     INode *buffer = init->next();
     delete init;
     return buffer;
@@ -61,19 +64,15 @@ INode *Parser::parse() {
   return nullptr;
 }
 
-bool Parser::_checkHeader() { return _checkLimiter(_header); }
-
-bool Parser::_checkTail() { return _checkLimiter(_tail); }
-
-bool Parser::_checkLimiter(const std::string limiter) {
-  _file->seekg(-1, std::ios_base::cur);
+bool Parser::_checkLimiter(std::fstream *file, const std::string limiter) {
+  file->seekg(-1, std::ios_base::cur);
 
   char symbol;
   int i = 0;
-  while (!_file->eof() && i < limiter.length()) {
-    symbol = _file->get();
+  while (!file->eof() && i < limiter.length()) {
+    symbol = file->get();
     if (symbol != limiter[i]) {
-      _file->seekg(-i, std::ios_base::cur);
+      file->seekg(-i, std::ios_base::cur);
       return false;
     }
     i++;

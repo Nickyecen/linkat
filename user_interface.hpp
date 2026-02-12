@@ -1,5 +1,6 @@
 #pragma once
 
+#include "flags.hpp"
 #include "linker.hpp"
 #include "parser.hpp"
 #include <fstream>
@@ -16,10 +17,6 @@ private:
   std::fstream _file;
   std::string _header = "";
   std::string _tail = "";
-
-  struct Flags {
-    bool recursive = false;
-  };
 
   Flags _flags;
 

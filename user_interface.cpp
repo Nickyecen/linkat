@@ -8,22 +8,20 @@
 
 void UserInterface::process(const int argc, char *argv[]) {
   _readInput(argc, argv);
+  _linker.setFlags(_flags);
 
   _file.open(_fileName, std::ios_base::in);
-  _checkFileHealth(_file);
-
-  _parser.setHeader(_header);
-  _parser.setTail(_tail);
-  _parser.setFile(_file);
-  INode *list = _parser.parse();
-
-  std::cout << "INodes:" << std::endl;
-  while (list) {
-    std::cout << list->data() << std::endl;
-    list = list->next();
+  std::string file_health = _checkFileHealth(_file);
+  if (file_health.length() != 0) {
+    std::cerr << "Error opening file: " << std::endl
+              << file_health << std::endl;
   }
 
-  // std::string included_file = _linker.link(list);
+  INode *list = _parser.parse(&_file, _header, _tail);
+
+  std::string linked_file = _linker.link(list, _header, _tail);
+
+  std::cout << linked_file;
 
   _file.close();
 }
@@ -56,10 +54,10 @@ void UserInterface::_readInput(const int argc, char *argv[]) {
     if (numFlags < NUM_FLAGS)
       throw std::invalid_argument(FLAGS_ERR_MSG);
 
-    for (int i = 1; i < numFlags; i++) {
+    for (int i = 1; i < numFlags + 1; i++) {
       switch (flags[i]) {
       case 'r':
-        _flags.recursive = true;
+        _flags.recursive(true);
         continue;
       default:
         throw std::invalid_argument(FLAGS_ERR_MSG);

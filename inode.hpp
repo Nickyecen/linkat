@@ -21,8 +21,8 @@ public:
 
   INode *append(INode *next);
 
-  const std::string data() { return _data; }
-  const DataType type() { return _type; }
+  const std::string data() const { return _data; }
+  const DataType type() const { return _type; }
 
   INode *prev() { return _prev; }
   INode *next() { return _next; }
