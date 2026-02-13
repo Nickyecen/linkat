@@ -1,17 +1,10 @@
-#include "link.hpp"
-#include "read_input.hpp"
-#include <cstdlib>
-#include <iostream>
-#include <string>
+#include "user_interface.hpp"
 
+// Entrada esperada:
+// linkat [-r] filename.ext header tail
 int main(int argc, char *argv[]) {
-  std::string fileName;
-  std::string header;
-  std::string tail;
-  bool recursive;
-
-  readInput(argc, argv, fileName, header, tail, recursive);
-  std::cout << link(fileName, header, tail, recursive);
+  UserInterface ui;
+  ui.process(argc, argv);
 
   return 0;
 }
