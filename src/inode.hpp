@@ -6,7 +6,7 @@
 //       Blocos de texto e Links de arquivos.
 class INode {
 public:
-  enum DataType { BLOCK, LINK };
+  enum class DataType { BLOCK, LINK };
 
 private:
   const std::string _data; // Texto se Block, nome do arquivo se Link
@@ -15,6 +15,9 @@ private:
   // Ponteiros de lista linkada
   INode *_prev;
   INode *_next;
+
+  // Ponteiro para link de dependência
+  INode *_dependency = nullptr;
 
 public:
   INode(const std::string data, const DataType type, INode *prev = nullptr,
@@ -35,4 +38,7 @@ public:
 
   void prev(INode *prev) { _prev = prev; }
   void next(INode *next) { _next = next; }
+
+  INode *dependency() { return _dependency; }
+  void dependency(INode *dependency) { _dependency = dependency; }
 };

@@ -9,6 +9,7 @@
 void UserInterface::process(const int argc, char *argv[]) {
   // Realiza leitura de input
   _readInput(argc, argv);
+  _parser.setFlags(_flags);
   _linker.setFlags(_flags);
 
   // Abre arquivo

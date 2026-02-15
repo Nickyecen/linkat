@@ -4,6 +4,17 @@
 #include <stdexcept>
 #include <string>
 
+INode *Parser::read(std::fstream *file) {
+  // Checa entrada
+  if (!file)
+    throw std::invalid_argument("Reading without a file");
+
+  std::stringstream data;
+  data << file->rdbuf();
+
+  return new INode(data.str(), INode::DataType::BLOCK);
+}
+
 INode *Parser::parse(std::fstream *file, const std::string &header,
                      const std::string &tail) {
   // Checa entrada
@@ -45,6 +56,16 @@ INode *Parser::parse(std::fstream *file, const std::string &header,
       if (symbol == tail[0] && _checkLimiter(file, tail)) {
         // Cria INode com dados atuais
         current = current->append(new INode(data.str(), INode::DataType::LINK));
+        std::fstream dependency(current->data(), std::ios_base::in);
+        if (dependency.fail())
+          throw std::invalid_argument("Linked file is invalid.");
+
+        if (_flags.recursive()) {
+          current->dependency(this->parse(&dependency, header, tail));
+        } else {
+          current->dependency(this->read(&dependency));
+        }
+        dependency.close();
         data.str("");
         // Começa a ler novo bloco
         state = State::READING_BLOCK;
@@ -92,7 +113,7 @@ bool Parser::_checkLimiter(std::fstream *file, const std::string limiter) {
   char symbol;
   int i = 0;
   // Checa se delimitador é igual à sequência no arquivo
-  while (file->get(symbol) && i < limiter.length()) {
+  while (i < limiter.length() && file->get(symbol)) {
     // Se não for, põe agulha de leitura de volta e retorna falso
     if (symbol != limiter[i]) {
       file->seekg(-i, std::ios_base::cur);

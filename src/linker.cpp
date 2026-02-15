@@ -21,20 +21,11 @@ const std::string Linker::link(INode *list, const std::string &header,
 
     // Links são acessados
     case INode::DataType::LINK: {
-      std::fstream linked_file(it->data(), std::ios_base::in);
-
-      if (linked_file.fail())
+      if (!it->dependency())
         throw std::invalid_argument("Linked file is invalid.");
 
-      // Checa se é necessário fazer o parsing recursivo e o faz
-      if (_flags.recursive()) {
-        INode *link_list = _parser.parse(&linked_file, header, tail);
-        result << this->link(link_list, header, tail);
-      } else {
-        result << linked_file.rdbuf();
-      }
+      result << this->link(it->dependency(), header, tail);
 
-      linked_file.close();
       break;
     }
     }
