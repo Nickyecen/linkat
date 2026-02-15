@@ -1,5 +1,11 @@
 # Linkat
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/icon-white.png">
+  <source media="(prefers-color-scheme: light)" srcset="assets/icon-black.png">
+  <img alt="Logo" src="assets/icon-black.png" align="right" width="200">
+</picture>
+
 O propósito deste programa é criar uma maneira simples de adicionar includes/links a linguagens ou mesmo arquivos de texto que não possuem essa propriedade. O nome do programa vem de "link", por fazer algo similar ao link de bibliotecas, com "cat", o programa linux que concatena textos.
 
 ## Uso:
